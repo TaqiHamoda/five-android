@@ -14,10 +14,10 @@ package ui
 
 import android.app.Activity
 import android.app.Service
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import blocka.LegacyAccountImport
 import com.akexorcist.localizationactivity.ui.LocalizationApplication
 import engine.EngineService
 import engine.FilteringService
@@ -51,13 +51,12 @@ class MainApplication: LocalizationApplication(), ViewModelStoreOwner {
 
     private val appUninstall = AppUninstallService()
 
-    override fun getViewModelStore() = MainApplication.viewModelStore
+    override val viewModelStore = MainApplication.viewModelStore
 
     override fun onCreate() {
         super.onCreate()
         ContextService.setApp(this)
         LogService.setup()
-        LegacyAccountImport.setup()
         DozeService.setup(this)
         setupEvents()
         MonitorService.setup(settingsVM.getUseForegroundService())
@@ -200,7 +199,7 @@ class MainApplication: LocalizationApplication(), ViewModelStoreOwner {
         }
     }
 
-    override fun getDefaultLanguage(): Locale {
+    override fun getDefaultLanguage(context: Context): Locale {
         return TranslationService.getLocale()
     }
 

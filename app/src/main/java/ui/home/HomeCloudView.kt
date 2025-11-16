@@ -107,7 +107,7 @@ class HomeCloudView : FrameLayout, IHomeContentView {
         var plusButtonReady = false
 
         val status: TextView = root.findViewById(R.id.home_status)
-        status.text = context.getString(R.string.home_status_deactivated).toUpperCase()
+        status.text = context.getString(R.string.home_status_deactivated).uppercase()
 
         val longStatus: TextView = root.findViewById(R.id.home_longstatus)
         val updateLongStatus = { appState: AppState, inProgress: Boolean, plusEnabled: Boolean, counter: Long? ->
@@ -213,8 +213,8 @@ class HomeCloudView : FrameLayout, IHomeContentView {
                 val status: TextView = root.findViewById(R.id.home_status)
                 status.text = when {
                     inProgress -> "..."
-                    appState == AppState.Activated -> context.getString(R.string.home_status_active).toUpperCase()
-                    else -> context.getString(R.string.home_status_deactivated).toUpperCase()
+                    appState == AppState.Activated -> context.getString(R.string.home_status_active).uppercase(Locale.getDefault())
+                    else -> context.getString(R.string.home_status_deactivated).uppercase(Locale.getDefault())
                 }
 
                 val accType = accountVM.account.value?.getType()

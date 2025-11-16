@@ -82,7 +82,7 @@ object EnvironmentService {
     }
 
     fun isCompatible(): Boolean {
-        val device = Build.MANUFACTURER.toLowerCase()
+        val device = Build.MANUFACTURER.lowercase()
         return when {
             device.startsWith("realme") -> false
             device.startsWith("oppo") -> false

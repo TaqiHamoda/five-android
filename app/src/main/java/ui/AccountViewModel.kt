@@ -49,7 +49,7 @@ class AccountViewModel: ViewModel() {
         viewModelScope.launch {
             log.w("Restoring account")
             try {
-                val accountId = accountId.toLowerCase(Locale.ENGLISH).trim()
+                val accountId = accountId.lowercase(Locale.ENGLISH).trim()
                 val account = blocka.getAccount(accountId)
                 if (EnvironmentService.isPublicBuild() && !account.isActive()) throw BlokadaException("Account inactive after restore")
                 updateLiveData(account)

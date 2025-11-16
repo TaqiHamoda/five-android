@@ -27,6 +27,7 @@ import ui.MainActivity
 import ui.getIntentForCommand
 import ui.utils.getPendingIntentForActivity
 import ui.utils.getPendingIntentForService
+import java.util.Locale
 
 private const val IMPORTANCE_NONE = 0
 private const val IMPORTANCE_DEFAULT = 3
@@ -145,7 +146,7 @@ class MonitorNotification(
             // TODO: paused
             else -> {
                 b.setContentTitle(
-                    ctx.getString(R.string.home_status_deactivated).toLowerCase().capitalize()
+                    ctx.getString(R.string.home_status_deactivated).lowercase(Locale.getDefault()).capitalize()
                 )
 
                 b.addAction(run {

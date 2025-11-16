@@ -95,7 +95,7 @@ internal class PacketRewriter(
         }
         if (dnsMessage.question == null) return false
 
-        val host = dnsMessage.question.name.toString(true).toLowerCase(Locale.ENGLISH)
+        val host = dnsMessage.question.name.toString(true).lowercase(Locale.ENGLISH)
         return if (!filter || filtering.allowed(host) || !filtering.denied(host)) {
             val dnsIndex = packetBytes[19].toInt() - 1
             val dnsAddress = dns.externalForIndex(dnsIndex)

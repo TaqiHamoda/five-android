@@ -37,6 +37,7 @@ import ui.MainApplication
 import ui.TunnelViewModel
 import ui.utils.getColorFromAttr
 import utils.withBoldSections
+import java.util.Locale
 
 interface IHomeContentView {
     fun onResume()
@@ -98,7 +99,7 @@ class HomeLibreView : FrameLayout, IHomeContentView {
         var plusButtonReady = false
 
         val status: TextView = root.findViewById(R.id.home_status)
-        status.text = context.getString(R.string.home_status_deactivated).toUpperCase()
+        status.text = context.getString(R.string.home_status_deactivated).uppercase(Locale.getDefault())
 
         val longStatus: TextView = root.findViewById(R.id.home_longstatus)
         val updateLongStatus = { s: TunnelStatus, counter: Long? ->
@@ -172,8 +173,8 @@ class HomeLibreView : FrameLayout, IHomeContentView {
             val status: TextView = root.findViewById(R.id.home_status)
             status.text = when {
                 s.inProgress -> "..."
-                s.active -> context.getString(R.string.home_status_active).toUpperCase()
-                else -> context.getString(R.string.home_status_deactivated).toUpperCase()
+                s.active -> context.getString(R.string.home_status_active).uppercase(Locale.getDefault())
+                else -> context.getString(R.string.home_status_deactivated).uppercase(Locale.getDefault())
             }
 
             updateLongStatus(s, adsCounterVm.counter.value?.let {

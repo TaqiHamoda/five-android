@@ -126,7 +126,7 @@ class CommandActivity : AppCompatActivity() {
                     .split("/")
                     .let {
                         try {
-                            Command.valueOf(it[0].toUpperCase()) to it.getOrNull(1)
+                            Command.valueOf(it[0].uppercase(Locale.getDefault())) to it.getOrNull(1)
                         } catch (ex: Exception) { null }
                     }
             }

@@ -23,8 +23,6 @@ import model.BlokadaException
 import model.GatewayId
 import model.ex
 import org.pcap4j.packet.*
-import org.pcap4j.packet.factory.PacketFactoryPropertiesLoader
-import org.pcap4j.util.PropertiesLoader
 import service.DozeService
 import ui.utils.cause
 import utils.Logger
@@ -111,7 +109,6 @@ internal class PacketLoopForPlusDoh (
                 fromOpenProxySockets(polls)
                 fromDeviceToProxy(device, deviceIn)
                 fromGatewayToProxy(gateway)
-                purge()
             }
         } catch (ex: InterruptedException) {
             log.v("Tunnel thread ${this.hashCode()} interrupted, stopping")
@@ -447,19 +444,6 @@ internal class PacketLoopForPlusDoh (
         // This is managed by the SystemTunnel
 //        try { Os.close(devicePipe) } catch (ex: Exception) {}
 //        devicePipe = null
-    }
-
-    private var purgeCount = 0
-    private fun purge() {
-        if (++purgeCount % 1024 == 0) {
-            try {
-                val l = PacketFactoryPropertiesLoader.getInstance()
-                val field = l.javaClass.getDeclaredField("loader")
-                field.isAccessible = true
-                val loader = field.get(l) as PropertiesLoader
-                loader.clearCache()
-            } catch (e: Exception) {}
-        }
     }
 
 }

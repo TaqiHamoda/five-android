@@ -18,8 +18,6 @@ import android.system.OsConstants
 import android.system.StructPollfd
 import engine.MetricsService.PACKET_BUFFER_SIZE
 import org.pcap4j.packet.*
-import org.pcap4j.packet.factory.PacketFactoryPropertiesLoader
-import org.pcap4j.util.PropertiesLoader
 import ui.utils.cause
 import utils.FlavorSpecific
 import utils.Logger
@@ -73,7 +71,6 @@ internal class PacketLoopForLibre (
                 poll(polls)
                 fromOpenSocketsToProxy(polls)
                 fromDeviceToProxy(device, deviceIn)
-                purge()
                 metrics.onLoopExit()
             }
         } catch (ex: InterruptedException) {
@@ -272,18 +269,4 @@ internal class PacketLoopForLibre (
         //try { Os.close(devicePipe) } catch (ex: Exception) {}
         //devicePipe = null
     }
-
-    private var purgeCount = 0
-    private fun purge() {
-        if (++purgeCount % 1024 == 0) {
-            try {
-                val l = PacketFactoryPropertiesLoader.getInstance()
-                val field = l.javaClass.getDeclaredField("loader")
-                field.isAccessible = true
-                val loader = field.get(l) as PropertiesLoader
-                loader.clearCache()
-            } catch (e: Exception) {}
-        }
-    }
-
 }

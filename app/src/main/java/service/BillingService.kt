@@ -13,14 +13,13 @@
 package service
 
 import com.android.billingclient.api.*
-import com.android.billingclient.api.BillingFlowParams.ProrationMode.DEFERRED
-import com.android.billingclient.api.BillingFlowParams.ProrationMode.IMMEDIATE_AND_CHARGE_PRORATED_PRICE
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import model.*
 import utils.Logger
+import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class BillingService: IPaymentService {
@@ -41,24 +40,25 @@ class BillingService: IPaymentService {
         @Synchronized get
 
     override suspend fun setup() {
+        val pendingPurchasesParams = PendingPurchasesParams.newBuilder()
+            .enableOneTimeProducts()
+            .build()
         client = BillingClient.newBuilder(context.requireAppContext())
             .setListener(purchaseListener)
-            .enablePendingPurchases()
+            .enablePendingPurchases(pendingPurchasesParams)
             .build()
     }
 
     private suspend fun getConnectedClient(): BillingClient {
         if (connected) return client
-        return suspendCancellableCoroutine<BillingClient> { cont ->
+        return suspendCancellableCoroutine { cont ->
             client.startConnection(object : BillingClientStateListener {
 
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
                     when (billingResult.responseCode) {
                         BillingClient.BillingResponseCode.OK -> {
                             connected = true
-                            cont.resume(client) {
-                                Logger.w("Billing", "Cancelled getConnectedClient()")
-                            }
+                            cont.resume(client)
                         }
                         BillingClient.BillingResponseCode.BILLING_UNAVAILABLE -> {
                             connected = false
@@ -103,21 +103,21 @@ class BillingService: IPaymentService {
         }
 
         latestProductList = productDetailsResult.productDetailsList ?: emptyList()
-        val payments = productDetailsResult.productDetailsList?.mapNotNull {
-            val offer = it.subscriptionOfferDetails?.first()
+        val payments = productDetailsResult.productDetailsList?.mapNotNull { productDetails ->
+            val offer = productDetails.subscriptionOfferDetails?.first()
             val phase = offer?.pricingPhases?.pricingPhaseList?.firstOrNull { it.priceAmountMicros > 0 }
 
             if (offer == null || phase == null) {
                 null
             } else {
                 Product(
-                    id = it.productId,
-                    title = it.title,
-                    description = it.description,
+                    id = productDetails.productId,
+                    title = productDetails.title,
+                    description = productDetails.description,
                     price = getPriceString(phase),
                     pricePerMonth = getPricePerMonthString(phase),
                     periodMonths = getPeriodMonths(phase),
-                    type = if(it.productId.startsWith("cloud")) "cloud" else "plus",
+                    type = if(productDetails.productId.startsWith("cloud")) "cloud" else "plus",
                     trial = getTrial(offer)
                 )
             }
@@ -127,60 +127,62 @@ class BillingService: IPaymentService {
     }
 
     private val purchaseListener = PurchasesUpdatedListener { billingResult, purchases ->
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            ongoingPurchase?.let { c ->
-                val (productId, cont) = c
-                val purchase = purchases
-                    .sortedByDescending { it.purchaseTime }
-                    .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                    .firstOrNull { it.products.any { it == productId } }
+        when (billingResult.responseCode) {
+            BillingClient.BillingResponseCode.OK -> {
+                if (purchases != null) {
+                    ongoingPurchase?.let { c ->
+                        val (productId, cont) = c
+                        val purchase = purchases
+                            .asSequence()
+                            .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                            .firstOrNull { it.products.any { p -> p == productId } }
 
-                if (purchase == null) {
-                    cont.resumeWithException(NoRelevantPurchase())
-                } else {
-                    cont.resume(PaymentPayload(
-                        purchase_token = purchase.purchaseToken,
-                        subscription_id = productId,
-                        user_initiated = true
-                    ), {})
+                        if (purchase == null) {
+                            cont.resumeWithException(NoRelevantPurchase())
+                        } else {
+                            cont.resume(
+                                PaymentPayload(
+                                purchase_token = purchase.purchaseToken,
+                                subscription_id = productId,
+                                user_initiated = true
+                            )
+                            )
+                        }
+                    } ?: run {
+                        Logger.w("Billing", "There was no ongoing purchase")
+                    }
                 }
-            } ?: run {
-                Logger.w("Billing", "There was no ongoing purchase")
             }
-        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            // Handle an error caused by a user cancelling the purchase flow.
-            Logger.v("Billing", "buyProduct: User cancelled purchase")
-            ongoingPurchase?.second?.resumeWithException(UserCancelledException())
-        } else {
-            // Handle any other error codes.
-            Logger.w("Billing", "buyProduct: Purchase error: $billingResult")
-            val exception = if (billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
-                AlreadyPurchasedException()
-            } else BlokadaException("Purchase error: $billingResult")
+            BillingClient.BillingResponseCode.USER_CANCELED -> {
+                // Handle an error caused by a user cancelling the purchase flow.
+                Logger.v("Billing", "buyProduct: User cancelled purchase")
+                ongoingPurchase?.second?.resumeWithException(UserCancelledException())
+            }
+            else -> {
+                // Handle any other error codes.
+                Logger.w("Billing", "buyProduct: Purchase error: $billingResult")
+                val exception = if (billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
+                    AlreadyPurchasedException()
+                } else BlokadaException("Purchase error: $billingResult")
 
-            ongoingPurchase?.second?.resumeWithException(exception)
+                ongoingPurchase?.second?.resumeWithException(exception)
+            }
         }
         ongoingPurchase = null
     }
 
     override suspend fun getActivePurchase(): ProductId? {
-        var result: CancellableContinuation<ProductId?>? = null
-        getConnectedClient().queryPurchasesAsync("subs") { billingResult, purchases ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val successfulPurchases = purchases
-                    .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                    .sortedByDescending { it.purchaseTime }
-
-                result?.resume(successfulPurchases.firstOrNull()?.products?.firstOrNull(), {})
-            } else {
-                result?.resumeWithException(
-                    BlokadaException("Failed refreshing purchases, response code not OK")
-                )
-            }
-        }
-
-        return suspendCancellableCoroutine { cont ->
-            result = cont
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        val purchasesResult = getConnectedClient().queryPurchasesAsync(params)
+        return if (purchasesResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            purchasesResult.purchasesList
+                .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                .maxByOrNull { it.purchaseTime }?.products?.firstOrNull()
+        } else {
+            Logger.w("Billing", "Failed refreshing purchases, response code not OK: ${purchasesResult.billingResult}")
+            null
         }
     }
 
@@ -197,8 +199,7 @@ class BillingService: IPaymentService {
                 BillingFlowParams.ProductDetailsParams.newBuilder()
                 .setProductDetails(details)
                 .setOfferToken(offerToken)
-                .build()
-            ))
+                .build()))
             .build()
         val activity = context.requireActivity()
         val responseCode = getConnectedClient().launchBillingFlow(activity, flowParams).responseCode
@@ -212,41 +213,30 @@ class BillingService: IPaymentService {
         }
     }
 
-    private var ongoingRestore: CancellableContinuation<List<PaymentPayload>>? = null
-        @Synchronized set
-        @Synchronized get
-
     override suspend fun restorePurchase(): List<PaymentPayload> {
-        getConnectedClient().queryPurchasesAsync("subs") { billingResult, purchases ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                val successfulPurchases = purchases
-                    .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                    .sortedByDescending { it.purchaseTime }
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        val purchasesResult = getConnectedClient().queryPurchasesAsync(params)
 
-                if (successfulPurchases.isNotEmpty()) {
-                    Logger.v("Billing", "restore: Restoring ${successfulPurchases.size} purchases")
-                    ongoingRestore?.resume(successfulPurchases.map {
-                        PaymentPayload(
-                            purchase_token = it.purchaseToken,
-                            subscription_id = it.products.first(),
-                            user_initiated = false
-                        )
-                    }, {})
-                } else {
-                    ongoingRestore?.resumeWithException(
-                        BlokadaException("Restoring purchase found no successful purchases")
+        if (purchasesResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            val successfulPurchases = purchasesResult.purchasesList
+                .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+
+            if (successfulPurchases.isNotEmpty()) {
+                Logger.v("Billing", "restore: Restoring ${successfulPurchases.size} purchases")
+                return successfulPurchases.map {
+                    PaymentPayload(
+                        purchase_token = it.purchaseToken,
+                        subscription_id = it.products.first(),
+                        user_initiated = false
                     )
                 }
             } else {
-                ongoingRestore?.resumeWithException(
-                    BlokadaException("Restoring purchase error: $billingResult")
-                )
+                throw BlokadaException("Restoring purchase found no successful purchases")
             }
-            ongoingRestore = null
-        }
-
-        return suspendCancellableCoroutine { cont ->
-            ongoingRestore = cont
+        } else {
+            throw BlokadaException("Restoring purchase error: ${purchasesResult.billingResult}")
         }
     }
 
@@ -255,69 +245,46 @@ class BillingService: IPaymentService {
             throw BlokadaException("Unknown product ID")
         val offerToken = details.subscriptionOfferDetails!!.first().offerToken
 
-        // Get existing subscription token
-        getConnectedClient().queryPurchasesAsync("subs") { billingResult, purchases ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                // Get latest successful assuming it's the current one
-                val existingPurchase = purchases
-                    .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                    .sortedByDescending { it.purchaseTime }
-                    .firstOrNull()
+        val queryPurchasesParams = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        val purchasesResult = getConnectedClient().queryPurchasesAsync(queryPurchasesParams)
 
-                if (existingPurchase != null) {
-                    Logger.v("Billing", "changeProduct: found subscription to use")
-                    Logger.v("Billing", "$existingPurchase")
-
-                    ongoingRestore?.resume(listOf(
-                        PaymentPayload(
-                            purchase_token = existingPurchase.purchaseToken,
-                            subscription_id = existingPurchase.products.first(),
-                            user_initiated = false
-                        )
-                    ), {})
-                } else {
-                    ongoingRestore?.resumeWithException(
-                        BlokadaException("changeProduct: no existing purchase")
-                    )
-                }
-            } else {
-                ongoingRestore?.resumeWithException(
-                    BlokadaException("changeProduct: error: $billingResult")
-                )
-            }
-            ongoingRestore = null
+        val existingPurchase = if (purchasesResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            purchasesResult.purchasesList
+                .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                .maxByOrNull { it.purchaseTime }
+        } else {
+            null
         }
 
-        // Wait until above async callback completes
-        val existingPurchase = suspendCancellableCoroutine<List<PaymentPayload>> { cont ->
-            ongoingRestore = cont
+        if (existingPurchase == null) {
+            throw BlokadaException("changeProduct: no existing purchase")
         }
 
-        val existingId = existingPurchase.first().subscription_id
-        val existingToken = existingPurchase.first().purchase_token
+        val existingId = existingPurchase.products.first()
 
-        val prorate = when {
-            // Upgrade cases
-            existingId == "cloud_12month" -> IMMEDIATE_AND_CHARGE_PRORATED_PRICE
-            existingId == "plus_1month" && id == "plus_12month" -> IMMEDIATE_AND_CHARGE_PRORATED_PRICE
-            // Downgrade case
-            else -> DEFERRED
+        val replacementMode = when (existingId) {
+            "cloud_12month" -> BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams.ReplacementMode.WITH_TIME_PRORATION
+            "plus_1month" -> if (id == "plus_12month") BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams.ReplacementMode.WITH_TIME_PRORATION else BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams.ReplacementMode.DEFERRED
+            else -> BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams.ReplacementMode.DEFERRED
         }
+
+        val productDetailsParams = BillingFlowParams.ProductDetailsParams.newBuilder()
+            .setProductDetails(details)
+            .setOfferToken(offerToken)
+            .setSubscriptionProductReplacementParams(
+                BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams.newBuilder()
+                    .setOldProductId(existingId)
+                    .setReplacementMode(replacementMode)
+                    .build()
+            )
+            .build()
 
         val flowParams = BillingFlowParams.newBuilder()
-            .setSubscriptionUpdateParams(
-                BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                .setOldPurchaseToken(existingToken)
-                .setReplaceProrationMode(prorate)
-                .build()
-            )
-            .setProductDetailsParamsList(listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(details)
-                .setOfferToken(offerToken)
-                .build()
-            ))
+            .setProductDetailsParamsList(listOf(productDetailsParams))
             .build()
+
         val activity = context.requireActivity()
         val responseCode = getConnectedClient().launchBillingFlow(activity, flowParams).responseCode
 
@@ -327,13 +294,6 @@ class BillingService: IPaymentService {
 
         return suspendCancellableCoroutine { cont ->
             ongoingPurchase = id to cont
-        }
-    }
-
-    private fun Purchase.isActive(): Boolean {
-        return when {
-            purchaseState != Purchase.PurchaseState.PURCHASED -> false
-            else -> false
         }
     }
 
