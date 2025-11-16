@@ -15,4 +15,6 @@
     package="org.blokada"
     android:sharedUserId="org.blokada">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
 </manifest>
