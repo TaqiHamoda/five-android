@@ -86,12 +86,17 @@ internal class PacketLoopForLibre (
     private fun fromDevice(fromDevice: ByteArray, length: Int) {
         if (rewriter.handleFromDevice(fromDevice, length)) return
 
-        val originEnvelope = try {
-            IpSelector.newPacket(fromDevice, 0, length) as IpPacket
+        val packet = try {
+            IpSelector.newPacket(fromDevice, 0, length)
         } catch (ex: Exception) {
             log.w("Failed reading origin packet".cause(ex))
             return
         }
+
+        if (packet !is IpPacket) {
+            return
+        }
+        val originEnvelope = packet
 
         if (originEnvelope.payload !is UdpPacket) {
             // Expected UdpPacket but got something else

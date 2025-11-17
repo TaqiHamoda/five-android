@@ -92,20 +92,6 @@ android {
             applicationId "org.blokada.origin.alarm"
             minSdkVersion 23
         }
-
-        googleslim {
-            // googleslim is a legacy "Slim" build that got banned from Google Play.
-            // It'll be phased out eventually once users are migrated away.
-            applicationId "org.blokada.alarm.dnschanger"
-            minSdkVersion 23
-        }
-
-        escaped {
-            // escaped build can be installed on top of googleslim build to get all features.
-            applicationId "org.blokada.alarm.dnschanger"
-            minSdkVersion 23
-        }
-
     }
 
     compileOptions {
@@ -127,14 +113,6 @@ android {
 
         debug.java.srcDirs += 'src/mock/kotlin'
 
-        googleslim.res.srcDirs += 'src/google/res'
-        googleslim.java.srcDirs += 'src/google/kotlin'
-        googleslim.java.srcDirs += 'src/libre/kotlin'
-        googleslim.assets.srcDirs += 'src/libre/assets'
-        googleslim.jniLibs.srcDirs += 'src/libre/jniLibs'
-        googleslim.res.srcDirs += 'src/libre/res'
-        googleslim.manifest.srcFile 'src/google/AndroidManifest.xml'
-
         five.res.srcDirs += 'src/notgoogle/res'
         five.java.srcDirs += 'src/notgoogle/kotlin'
         five.java.srcDirs += 'src/libre/kotlin'
@@ -142,14 +120,6 @@ android {
         five.jniLibs.srcDirs += 'src/libre/jniLibs'
         five.manifest.srcFile 'src/libre/AndroidManifest.xml'
         five.res.srcDirs += 'src/libre/res'
-
-        escaped.res.srcDirs += 'src/notgoogle/res'
-        escaped.java.srcDirs += 'src/notgoogle/kotlin'
-        escaped.java.srcDirs += 'src/libre/kotlin'
-        escaped.assets.srcDirs += 'src/libre/assets'
-        escaped.jniLibs.srcDirs += 'src/libre/jniLibs'
-        escaped.manifest.srcFile 'src/libre/AndroidManifest.xml'
-        escaped.res.srcDirs += 'src/libre/res'
 
         // Do not include translations in debug builds (does not clutter search during development)
         release.res.srcDirs += 'src/translations/res'
@@ -163,7 +133,6 @@ dependencies {
 
     // androidx and kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.2.21"
-
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.13.0'

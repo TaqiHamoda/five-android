@@ -1,5 +1,18 @@
 # Blokada 5
 
+# TODO:
+- Remove the other flavors
+- Add password functionality in settings.
+  - If user forgets password, they have the option to disable password prompting after 24 hours
+  - During those 24 hours, they can cancel the "disable password request"
+- Make it possible for the app to be device admin
+- Make GitHub actions compile and create a release with APK
+  - Extend list of architectures to more archs
+- Add the option for a custom user blocklist
+- Add the option to edit a URL before adding it to blocked
+  - Any URL added to block will be part of the custom user blocklist
+- Add ability to show and edit the whitelist
+
 Blokada 5 is the well known open source mobile ad blocker and privacy app.
 
 Want to try it out? **[Click here to download Blokada](https://go.blokada.org/download_section)**.
