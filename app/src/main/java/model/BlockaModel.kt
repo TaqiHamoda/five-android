@@ -63,7 +63,7 @@ data class Gateway(
     val tags: List<String>?,
     val country: String?
 ) {
-    fun niceName() = location.split('-').map { it.capitalize() }.joinToString(" ")
+    fun niceName() = location.split('-').map { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }.joinToString(" ")
     fun overloaded() = resource_usage_percent >= 100
 
     companion object {}
