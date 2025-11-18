@@ -22,8 +22,7 @@ buildscript {
 
     dependencies {
         classpath "com.android.tools.build:gradle:8.13.1"
-        classpath "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:2.3.0-RC"
-        classpath "org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:2.2.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.21"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.9.6"
         classpath "org.mozilla.rust-android-gradle:plugin:0.9.6"
     }
