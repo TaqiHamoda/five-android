@@ -98,11 +98,6 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/engine/kotlin'
         main.jniLibs.srcDirs += 'src/engine/jniLibs'
-        main.java.srcDirs += 'src/libre/kotlin'
-        main.assets.srcDirs += 'src/libre/assets'
-        main.jniLibs.srcDirs += 'src/libre/jniLibs'
-        main.manifest.srcFile 'src/libre/AndroidManifest.xml'
-        main.res.srcDirs += 'src/libre/res'
 
         // Do not include translations in debug builds (does not clutter search during development)
         release.res.srcDirs += 'src/translations/res'

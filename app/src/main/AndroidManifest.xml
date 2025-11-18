@@ -6,7 +6,7 @@
   ~ License, v. 2.0. If a copy of the MPL was not distributed with this
   ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   ~
-  ~ Copyright © 2021 Blocka AB. All rights reserved.
+  ~ Copyright © 2025 Blocka AB. All rights reserved.
   ~
   ~ @author Karol Gusak (karol@blocka.net)
   -->
@@ -83,9 +83,6 @@
                 <data
                     android:host="cmd"
                     android:scheme="blocka" />
-                <data
-                    android:host="cmd.blocka.net"
-                    android:scheme="http" />
             </intent-filter>
 
             <!-- Legacy commands to be removed in the future -->
@@ -132,7 +129,7 @@
             android:name="ui.UpdateCheckJob"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <service android:name="service.ForegroundService"
+        <service android:name="service.ForegroundService" 
                  android:foregroundServiceType="dataSync" />
 
         <service android:name="ui.CommandService" />
@@ -157,14 +154,5 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider" />
         </provider>
-
     </application>
-
-    <queries>
-        <package android:name="org.blokada.origin.alarm"/>
-        <package android:name="org.blokada.alarm.dnschanger"/>
-        <package android:name="org.blokada.fem.fdroid"/>
-        <package android:name="org.blokada.sex"/>
-    </queries>
-
 </manifest>
