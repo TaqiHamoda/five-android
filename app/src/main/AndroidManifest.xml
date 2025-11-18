@@ -11,13 +11,11 @@
   ~ @author Karol Gusak (karol@blocka.net)
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.blokada">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -27,7 +25,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
@@ -121,49 +118,9 @@
             </intent-filter>
         </activity>
 
-        <!-- External actions support (like Tasker or trigger urls) -->
-        <activity
-            android:name="ui.TaskerActivity"
-            android:configChanges="orientation|screenSize"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.Blokada.Translucent"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-
-        <activity-alias
-            android:name="ui.PluginActivity"
-            android:exported="true"
-            android:icon="@drawable/blokada_logo"
-            android:label="@string/app_name"
-            android:targetActivity="ui.TaskerActivity">
-            <!-- this Intent filter allows the plug-in to be discovered by the host. -->
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
-            </intent-filter>
-        </activity-alias>
-
-        <receiver
-            android:name="ui.TaskerReceiver"
-            android:exported="true">
-
-            <!-- this Intent filter allows the plug-in to discovered by the host. -->
-            <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name="service.ExpirationReceiver" />
 
         <receiver android:name="service.DozeReceiver" />
-
-        <service
-            android:name="com.wireguard.android.backend.GoBackend$VpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-        </service>
 
         <service
             android:name="engine.SystemTunnel"

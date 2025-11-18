@@ -36,6 +36,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.akexorcist.localizationactivity.ui.LocalizationActivity
+import androidx.activity.OnBackPressedCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -207,6 +208,16 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
         intent?.let {
             handleIntent(it)
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (WebService.goBack()) return
+
+                // Not handled by WebService, so disable this callback and let the default back press handling take over
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
+        })
     }
 
     private fun setupEvents() {
@@ -461,10 +472,6 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
         return navController.navigateUp()
     }
 
-    override fun onBackPressed() {
-        if (WebService.goBack()) return
-        super.onBackPressed()
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

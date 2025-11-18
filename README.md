@@ -1,7 +1,6 @@
 # Blokada 5
 
 # TODO:
-- Remove the other flavors
 - Add password functionality in settings.
   - If user forgets password, they have the option to disable password prompting after 24 hours
   - During those 24 hours, they can cancel the "disable password request"

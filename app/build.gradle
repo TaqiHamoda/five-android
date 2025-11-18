@@ -106,12 +106,8 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs += 'src/legacy/kotlin'
-
         main.java.srcDirs += 'src/engine/kotlin'
         main.jniLibs.srcDirs += 'src/engine/jniLibs'
-
-        debug.java.srcDirs += 'src/mock/kotlin'
 
         five.res.srcDirs += 'src/notgoogle/res'
         five.java.srcDirs += 'src/notgoogle/kotlin'
