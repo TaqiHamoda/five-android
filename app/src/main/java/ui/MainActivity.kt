@@ -393,7 +393,6 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
         }
 
         accountVM.maybeRefreshAccount()
-        maybeInformAboutMigration()
         maybeInformAboutBadDnsProfileConfig()
     }
 
@@ -409,36 +408,6 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
         super.onDestroy()
         ContextService.unsetActivityContext()
         Repos.stage.onDestroy()
-    }
-
-    /**
-     * Will show the migration prompt to open our new listing. This will only happen in Slim build,
-     * which is being phased out, as it's been cut down by Google severely. The dialog will show:
-     * - only once per app lifetime (eg need to kill to show again)
-     * - after 5 seconds from foreground event
-     * - only if Slim was escaped
-     */
-    private var informed = false
-    private fun maybeInformAboutMigration() {
-        if (!informed && EnvironmentService.isSlim(ignoreEscape = true)) {
-            lifecycleScope.launch {
-                delay(5000)
-                val stage = Repos.stage.stageHot.first()
-                if (stage == AppStage.Foreground && EnvironmentService.escaped) {
-                    Logger.w("Main", "Displaying Slim migration prompt")
-                    informed = true
-                    dialog.showAlert(
-                        message = "This version of Blokada has been banned by Google. We have released a better version on PlayStore that we recommend. Please visit blokada.org for other install options.",
-                        header = getString(R.string.alert_error_header),
-                        okText = getString(R.string.universal_action_continue),
-                        okAction = {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://go.blokada.org/play_cloud_migrate")));
-                        }
-                    )
-                    .collect {  }
-                }
-            }
-        }
     }
 
     /**

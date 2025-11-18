@@ -111,10 +111,6 @@ class HomeLibreView : FrameLayout, IHomeContentView {
                                     context.getString(R.string.home_status_detail_plus)
                             ).withBoldSections(context.getColorFromAttr(R.attr.colorRingPlus1))
                 }
-                s.active && EnvironmentService.isSlim() -> {
-                    context.getString(R.string.home_status_detail_active_slim)
-                        .withBoldSections(context.getColorFromAttr(R.attr.colorRingLibre1))
-                }
                 s.active && counter == null -> {
                     context.getString(R.string.home_status_detail_active)
                         .withBoldSections(context.getColorFromAttr(R.attr.colorRingLibre1))
@@ -156,12 +152,6 @@ class HomeLibreView : FrameLayout, IHomeContentView {
                 when {
                     s.inProgress -> Unit
                     s.error != null -> Unit
-                    EnvironmentService.isSlim() -> {
-                        // The slim build will not let to start the app (if not escaped).
-                        // This is because the slim build got banned by Google and this is the attempt
-                        // to migrate users that still have slim installed.
-                        Toast.makeText(context, "Could not activate. Search 'Blokada 6' on Google Play to update.", Toast.LENGTH_LONG).show()
-                    }
                     s.active -> {
                         vm.turnOff()
                         adsCounterVm.roll()

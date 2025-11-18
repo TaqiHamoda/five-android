@@ -48,10 +48,6 @@ internal object FilteringService: PrintsDebugInfo, FlavorSpecific {
         }
 
         filteringStrategy = when {
-            EnvironmentService.isSlim() -> {
-                log.w("Slim build, will not block anything")
-                NoopFilteringStrategy
-            }
             merged.isEmpty() && userDenied.isEmpty() -> {
                 log.e("Empty merged blocklist and user denied list, will not block anything")
                 NoopFilteringStrategy

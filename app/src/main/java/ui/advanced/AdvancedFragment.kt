@@ -43,35 +43,26 @@ class AdvancedFragment : Fragment() {
 
     private val sections by lazy {
         listOf(
-            if (EnvironmentService.isSlim()) null
-            else {
-                Section(
-                    name = getString(R.string.advanced_section_header_packs),
-                    slugline = getString(R.string.advanced_section_slugline_packs),
-                    iconResId = R.drawable.ic_shield,
-                    destination = AdvancedFragmentDirections.actionAdvancedFragmentToNavigationPacks()
-                )
-            },
+            Section(
+                name = getString(R.string.advanced_section_header_packs),
+                slugline = getString(R.string.advanced_section_slugline_packs),
+                iconResId = R.drawable.ic_shield,
+                destination = AdvancedFragmentDirections.actionAdvancedFragmentToNavigationPacks()
+            ),
 
-            if (EnvironmentService.isSlim()) null
-            else {
-                Section(
-                    name = getString(R.string.userdenied_section_header),
-                    slugline = getString(R.string.userdenied_section_slugline),
-                    iconResId = R.drawable.ic_baseline_admin_panel_settings_24,
-                    destination = AdvancedFragmentDirections.actionAdvancedFragmentToUserDeniedFragment()
-                )
-            },
+            Section(
+                name = getString(R.string.userdenied_section_header),
+                slugline = getString(R.string.userdenied_section_slugline),
+                iconResId = R.drawable.ic_baseline_admin_panel_settings_24,
+                destination = AdvancedFragmentDirections.actionAdvancedFragmentToUserDeniedFragment()
+            ),
 
-            if (EnvironmentService.isSlim() || !EnvironmentService.isLibre()) null
-            else {
-                Section(
-                    name = getString(R.string.apps_section_header),
-                    slugline = getString(R.string.advanced_section_slugline_apps),
-                    iconResId = R.drawable.ic_baseline_apps_24,
-                    destination = AdvancedFragmentDirections.actionAdvancedFragmentToAppsFragment()
-                )
-            },
+            Section(
+                name = getString(R.string.apps_section_header),
+                slugline = getString(R.string.advanced_section_slugline_apps),
+                iconResId = R.drawable.ic_baseline_apps_24,
+                destination = AdvancedFragmentDirections.actionAdvancedFragmentToAppsFragment()
+            ),
 
             if (!EnvironmentService.isLibre()) null
             else {
@@ -142,17 +133,6 @@ class AdvancedFragment : Fragment() {
 //            encryptionLevel.setTextColor(color)
 //            encryptionLevel.text = ctx.levelToText(level)
 //        })
-
-        val migrateSlim = root.findViewById<View>(R.id.advanced_migrateslim)
-        migrateSlim.visibility = if (EnvironmentService.isSlim()) View.VISIBLE else View.GONE
-        migrateSlim.setOnClickListener {
-            val nav = findNavController()
-            nav.navigate(
-                AdvancedFragmentDirections.actionAdvancedFragmentToWebFragment(
-                    Links.updated, getString(R.string.universal_action_learn_more)
-                )
-            )
-        }
 
         return root
     }

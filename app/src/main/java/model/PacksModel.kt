@@ -92,7 +92,7 @@ data class PackSource(
     companion object {}
 
     // Last link is always the direct source link (and not mirror)
-    fun urlsForFlavor() = if (EnvironmentService.isFdroid()) listOf(urls.last()) else urls.dropLast(1)
+    fun urlsForFlavor() = urls.dropLast(1)
 }
 
 @JsonClass(generateAdapter = true)

@@ -119,10 +119,6 @@ class HomeCloudView : FrameLayout, IHomeContentView {
                             context.getString(R.string.home_status_detail_plus)
                     ).withBoldSections(context.getColorFromAttr(R.attr.colorRingPlus1))
                 }
-                appState == AppState.Activated && EnvironmentService.isSlim() -> {
-                    context.getString(R.string.home_status_detail_active_slim)
-                    .withBoldSections(context.getColorFromAttr(R.attr.colorRingLibre1))
-                }
                 appState == AppState.Activated && counter == null -> {
                     context.getString(R.string.home_status_detail_active)
                     .withBoldSections(context.getColorFromAttr(R.attr.colorRingLibre1))

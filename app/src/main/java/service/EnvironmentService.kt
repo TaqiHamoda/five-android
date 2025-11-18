@@ -45,30 +45,19 @@ object EnvironmentService {
         val device = Build.DEVICE
         val touch = if (isSupportingTouch()) "touch" else "donttouch"
         val compatible = if (isCompatible()) "compatible" else "incompatible"
-        return if (isFdroid())
-            "blokada/5.x.x (android-droid droid droid droid droid droid droid compatible)"
-        else
-            "blokada/$version (android-$androidVersion $flavor $type $arch $brand $device $touch api $compatible)"
+        return "blokada/$version (android-$androidVersion $flavor $type $arch $brand $device $touch api $compatible)"
     }
 
     fun isPublicBuild(): Boolean {
         return BuildConfig.BUILD_TYPE == "release"
     }
 
-    fun isSlim(ignoreEscape: Boolean = false): Boolean {
-        return BuildConfig.FLAVOR == "googleslim" && (!escaped || ignoreEscape)
-    }
-
     fun isLibre(): Boolean {
-        return BuildConfig.FLAVOR != "six"
-    }
-
-    fun isFdroid(): Boolean {
-        return BuildConfig.FLAVOR == "droid"
+        return true
     }
 
     fun getFlavor(): String {
-        return if (escaped) "escaped" else BuildConfig.FLAVOR
+        return "five"
     }
 
     fun getBuildName(): String {

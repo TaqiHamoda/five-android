@@ -130,7 +130,7 @@ object UpdateService {
         onOpenChangelog: () -> Unit
     ) {
         val ctx = context.requireContext()
-        val showDonate = EnvironmentService.isLibre() && !EnvironmentService.isSlim()
+        val showDonate = EnvironmentService.isLibre()
         alert.showAlert(
             message = ctx.getString(
                 if (showDonate) R.string.update_desc_updated else R.string.update_desc_updated_nodon

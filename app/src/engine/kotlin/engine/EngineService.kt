@@ -154,17 +154,6 @@ object EngineService {
                     )
                     state.plusMode(config)
                 }
-                // Slim mode
-                EnvironmentService.isSlim() -> {
-                    dnsMapper.setDns(dns, doh)
-                    if (doh) dnsService.startDnsProxy(dns)
-                    systemTunnel.onConfigureTunnel = { tun ->
-                        configurator.forLibre(tun, dns)
-                    }
-                    val tunnelConfig = systemTunnel.open()
-                    packetLoop.startSlimMode(doh, dns, tunnelConfig)
-                    state.libreMode(config)
-                }
                 // Libre mode
                 else -> {
                     dnsMapper.setDns(dns, doh)
