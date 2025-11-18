@@ -90,7 +90,7 @@
             android:layout_width="@dimen/icon"
             android:layout_height="@dimen/icon"
             android:padding="@dimen/half"
-            android:tint="?android:attr/textColorSecondary"
+            app:tint="?android:attr/textColorSecondary"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
     </LinearLayout>
 

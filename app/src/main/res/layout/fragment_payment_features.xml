@@ -61,14 +61,14 @@
                         style="@style/Text.Plus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="BLOKADA"
+                        android:text="@string/payment_blokada_text"
                         android:textColor="?android:attr/textColor" />
 
                     <TextView
                         style="@style/Text.Plus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+"
+                        android:text="@string/universal_plus_sign"
                         android:textColor="?android:attr/colorPrimary" />
                 </LinearLayout>
 
@@ -105,7 +105,7 @@
                                 android:layout_height="@dimen/icon"
                                 android:layout_marginEnd="@dimen/normal"
                                 android:src="@drawable/ic_baseline_location_on_24"
-                                android:tint="?android:attr/colorPrimary" />
+                                app:tint="?android:attr/colorPrimary" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -137,7 +137,7 @@
                                 android:layout_height="@dimen/icon"
                                 android:layout_marginEnd="@dimen/normal"
                                 android:src="@drawable/ic_baseline_lock_24"
-                                android:tint="?android:attr/colorPrimary" />
+                                app:tint="?android:attr/colorPrimary" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -169,7 +169,7 @@
                                 android:layout_height="@dimen/icon"
                                 android:layout_marginEnd="@dimen/normal"
                                 android:src="@drawable/ic_baseline_devices_24"
-                                android:tint="?android:attr/colorPrimary" />
+                                app:tint="?android:attr/colorPrimary" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -201,7 +201,7 @@
                                 android:layout_height="@dimen/icon"
                                 android:layout_marginEnd="@dimen/normal"
                                 android:src="@drawable/ic_baseline_remove_red_eye_24"
-                                android:tint="?android:attr/colorPrimary" />
+                                app:tint="?android:attr/colorPrimary" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -233,7 +233,7 @@
                                 android:layout_height="@dimen/icon"
                                 android:layout_marginEnd="@dimen/normal"
                                 android:src="@drawable/ic_baseline_chat_bubble_outline_24"
-                                android:tint="?android:attr/colorPrimary" />
+                                app:tint="?android:attr/colorPrimary" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"

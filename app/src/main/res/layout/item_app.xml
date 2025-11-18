@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
                 android:singleLine="true"
-                android:text="Sample app" />
+                android:text="@string/app_placeholder_name" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -68,7 +68,7 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="com.app.sample.super.long.name.as.laways" />
+                    android:text="@string/app_placeholder_package" />
 
                 <TextView
                     android:id="@+id/app_bypassed"

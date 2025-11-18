@@ -26,14 +26,14 @@
             android:id="@+id/packs_slugline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Popular for adblocking" />
+            android:text="@string/pack_slugline_adblocking" />
 
         <TextView
             android:id="@+id/packs_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/normal"
-            android:text="This is a pack description" />
+            android:text="@string/pack_description_placeholder" />
 
         <View
             android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                     android:id="@+id/packs_author"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Jim Teris"
+                    android:text="@string/pack_author_name_placeholder"
                     android:textColor="?android:attr/colorPrimary" />
             </LinearLayout>
 
@@ -93,7 +93,7 @@
                 android:layout_width="@dimen/icon"
                 android:layout_height="@dimen/icon"
                 android:padding="@dimen/half"
-                android:tint="?android:attr/textColorSecondary"
+                app:tint="?android:attr/textColorSecondary"
                 app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
         </LinearLayout>
 

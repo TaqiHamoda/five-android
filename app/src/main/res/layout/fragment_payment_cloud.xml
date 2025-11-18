@@ -69,14 +69,14 @@
                             android:layout_width="110dp"
                             android:layout_height="@dimen/header_height"
                             android:src="@drawable/header"
-                            android:tint="?android:attr/textColor" />
+                            app:tint="?android:attr/textColor" />
 
                         <TextView
                             style="@style/Text.H2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="CLOUD"
+                            android:text="@string/payment_plan_cloud"
                             android:textColor="@color/blue"
                             android:textStyle="bold" />
 
@@ -119,14 +119,14 @@
                             android:layout_width="110dp"
                             android:layout_height="@dimen/header_height"
                             android:src="@drawable/header"
-                            android:tint="?android:attr/textColor" />
+                            app:tint="?android:attr/textColor" />
 
                         <TextView
                             style="@style/Text.H2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="PLUS"
+                            android:text="@string/payment_plan_plus"
                             android:textColor="@color/orange"
                             android:textStyle="bold" />
 

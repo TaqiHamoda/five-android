@@ -88,7 +88,7 @@
                         android:textSize="80sp"
                         android:textColor="@color/blue"
                         android:gravity="center"
-                        android:text="49.9k" />
+                        android:text="@string/adscounter_placeholder_value" />
 
                     <TextView
                         android:layout_width="match_parent"

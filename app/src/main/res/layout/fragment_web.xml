@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="@dimen/doubled"
-            android:text="Tap to open in browser"
+            android:text="@string/web_action_open_in_browser"
             android:textColor="?android:attr/colorPrimary" />
     </FrameLayout>
 

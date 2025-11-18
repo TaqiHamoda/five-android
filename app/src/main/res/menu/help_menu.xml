@@ -21,7 +21,7 @@
     <item
         android:id="@+id/help_logs"
         android:icon="@drawable/ic_baseline_format_list_bulleted_24"
-        android:title="Logs" />
+        android:title="@string/help_menu_logs" />
 
     <item
         android:id="@+id/help_sharelog"
@@ -31,7 +31,7 @@
     <item
         android:id="@+id/help_marklog"
         android:icon="@drawable/ic_baseline_color_lens_24"
-        android:title="Mark log" />
+        android:title="@string/help_menu_mark_log" />
 
     <item
         android:id="@+id/help_settings"

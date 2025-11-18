@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Enter your command to be executed by Blokada.\nBasic commands are 'on' and 'off'." />
+            android:text="@string/tasker_command_description" />
 
         <EditText
             android:id="@+id/tasker_command"
@@ -45,13 +45,13 @@
             android:layout_marginTop="@dimen/normal"
             android:layout_marginEnd="@dimen/doubled"
             android:gravity="center"
-            android:hint="off" />
+            android:hint="@string/tasker_hint_off" />
 
         <Button
             android:id="@+id/tasker_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/normal"
-            android:text="Done" />
+            android:text="@string/universal_action_done" />
     </LinearLayout>
 </FrameLayout>

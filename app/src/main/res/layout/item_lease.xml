@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
                 android:singleLine="true"
-                android:text="John Does's Android Device" />
+                android:text="@string/lease_placeholder_device_name" />
 
             <TextView
                 android:id="@+id/lease_thisdevice"
@@ -67,7 +67,7 @@
             android:layout_width="@dimen/icon"
             android:layout_height="@dimen/icon"
             android:padding="@dimen/half"
-            android:tint="?android:attr/colorPrimary"
+            app:tint="?android:attr/colorPrimary"
             android:src="@drawable/ic_baseline_backspace_24"
             />
     </LinearLayout>

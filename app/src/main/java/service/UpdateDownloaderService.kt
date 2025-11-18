@@ -17,7 +17,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Environment
+import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
@@ -136,8 +137,13 @@ object UpdateDownloaderService {
                         if (c.moveToFirst()) {
                             val columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
                             if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
-                                val uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
-                                deferred.complete(uriString)
+                                val columnIndexUri = c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                                if (columnIndexUri >= 0) {
+                                    val uriString = c.getString(columnIndexUri)
+                                    deferred.complete(uriString)
+                                } else {
+                                    deferred.completeExceptionally(BlokadaException("Download successful, but COLUMN_LOCAL_URI not found"))
+                                }
                             } else {
                                 deferred.completeExceptionally(BlokadaException("Download failed"))
                             }
@@ -147,7 +153,13 @@ object UpdateDownloaderService {
             }
         }
 
-        ctx.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        ContextCompat.registerReceiver(
+            ctx,
+            receiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
         val downloadId = dm.enqueue(request)
         ongoingDownload = receiver to downloadId
         return deferred

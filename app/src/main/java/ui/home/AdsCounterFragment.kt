@@ -52,14 +52,14 @@ class AdsCounterFragment : BottomSheetFragment(skipCollapsed = false) {
                 val share: View = root.findViewById(R.id.adscounter_share)
                 share.setOnClickListener {
                     dismiss()
-                    ShareUtils().shareMessage(context!!, counterString)
+                    ShareUtils().shareMessage(requireContext(), counterString)
                 }
 
                 val counter: TextView = root.findViewById(R.id.adscounter_counter)
                 counter.text = counterString
                 counter.setOnClickListener {
                     dismiss()
-                    ShareUtils().shareMessage(context!!, counterString)
+                    ShareUtils().shareMessage(requireContext(), counterString)
                 }
             }
         }

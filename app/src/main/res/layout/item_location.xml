@@ -32,13 +32,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/half"
         android:layout_weight="1"
-        android:text="Stockholm" />
+        android:text="@string/location_placeholder_name" />
 
     <ImageView
         android:id="@+id/location_checkmark"
         android:layout_width="@dimen/icon"
         android:layout_height="@dimen/icon"
         android:padding="@dimen/half"
-        android:tint="?android:attr/colorPrimary"
+        app:tint="?android:attr/colorPrimary"
         app:srcCompat="@drawable/ic_baseline_check_24" />
 </LinearLayout>

@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="99" />
+                android:text="@string/activity_placeholder_count" />
         </FrameLayout>
 
         <LinearLayout
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="middle"
                 android:singleLine="true"
-                android:text="www.apple.com" />
+                android:text="@string/activity_placeholder_domain" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -78,7 +78,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="29 minutes ago" />
+                    android:text="@string/activity_placeholder_time" />
 
                 <TextView
                     android:id="@+id/activity_modified"

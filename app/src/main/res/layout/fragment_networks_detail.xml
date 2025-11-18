@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="middle"
                     android:singleLine="true"
-                    android:text="My Super Long Little Home WiFi 5G Network" />
+                    android:text="@string/network_placeholder_name" />
 
                 <TextView
                     android:id="@+id/network_desc"

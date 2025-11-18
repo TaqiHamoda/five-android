@@ -20,9 +20,9 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: "kotlin-kapt"
 
 android {
-    namespace "org.blokada"
+    namespace = "org.blokada"
     compileSdkVersion 36
-    ndkVersion "29.0.14206865"
+    ndkVersion = "29.0.14206865"
 
     buildFeatures {
         buildConfig = true
@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.blokada.origin.alarm"
+        applicationId "org.blokada"
         minSdkVersion 26
         targetSdkVersion 36
         versionCode 666230201
@@ -85,7 +85,7 @@ android {
 
     compileOptions {
         // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
 
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
@@ -124,6 +124,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.9.0'
     implementation 'androidx.webkit:webkit:1.14.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    implementation "androidx.security:security-crypto:1.1.0-alpha03"
 
     // json
     implementation 'com.squareup.moshi:moshi:1.15.2'
