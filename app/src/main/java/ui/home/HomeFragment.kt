@@ -33,7 +33,14 @@ import ui.app
 import ui.settings.SettingsFragmentDirections
 import utils.Links
 
-class HomeFragment : Fragment() {
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+
+// ...
+
+class HomeFragment : Fragment(), MenuProvider {
 
     private val alert = AlertDialogService
 
@@ -68,7 +75,6 @@ class HomeFragment : Fragment() {
             homeLibre.showLocationSheet = ::showLocationSheet
             homeLibre.showPlusSheet = ::showPlusSheet
             homeLibre.showFailureDialog = ::showFailureDialog
-            homeLibre.setHasOptionsMenu = { setHasOptionsMenu(it) }
             homeLibre.setup()
             root.addView(homeLibre)
             homeView = homeLibre
@@ -80,13 +86,12 @@ class HomeFragment : Fragment() {
             homeCloud.showLocationSheet = ::showLocationSheet
             homeCloud.showPlusSheet = ::showPlusSheet
             homeCloud.showFailureDialog = ::showFailureDialog
-            homeCloud.setHasOptionsMenu = { setHasOptionsMenu(it) }
             homeCloud.setup()
             root.addView(homeCloud)
             homeView = homeCloud
         }
 
-        lifecycleScope.launchWhenCreated {
+        viewLifecycleOwner.lifecycleScope.launch {
             delay(1000)
             UpdateService.handleUpdateFlow(
                 onOpenDonate = {
@@ -175,13 +180,17 @@ class HomeFragment : Fragment() {
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.home_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.home_menu, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.home_donate -> {
                 val nav = findNavController()
                 nav.navigate(R.id.navigation_settings)

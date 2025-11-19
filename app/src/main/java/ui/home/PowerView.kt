@@ -17,6 +17,7 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -439,7 +440,7 @@ class PowerView : View {
         pingHandler.removeMessages(0)
     }
 
-    private val pingHandler: Handler = Handler {
+    private val pingHandler: Handler = Handler(Looper.getMainLooper()) {
         refreshPing()
         true
     }

@@ -17,7 +17,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 import org.blokada.R
 import service.VpnPermissionService
 import ui.BottomSheetFragment
@@ -61,13 +63,12 @@ class AskVpnProfileFragment : BottomSheetFragment() {
 
         val vpnContinue: View = root.findViewById(R.id.vpnperm_continue)
         vpnContinue.setOnClickListener {
-            vpnPerm.askPermission()
-        }
-
-        vpnPerm.onPermissionGranted = { granted ->
-            if (granted) {
-                vm.turnOn()
-                dismiss()
+            lifecycleScope.launch {
+                val granted = vpnPerm.askPermission()
+                if (granted) {
+                    vm.turnOn()
+                    dismiss()
+                }
             }
         }
 
@@ -76,7 +77,7 @@ class AskVpnProfileFragment : BottomSheetFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        vpnPerm.onPermissionGranted = {}
+        // No need to clear onPermissionGranted as it's no longer a callback
     }
 
 }

@@ -32,7 +32,12 @@ import ui.*
 import ui.utils.openInBrowser
 import utils.Links
 
-class WebFragment : BottomSheetFragment() {
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+
+// ...
+
+class WebFragment : BottomSheetFragment(), MenuProvider {
 
     private lateinit var vm: AccountViewModel
     private lateinit var activationVM: ActivationViewModel
@@ -63,7 +68,7 @@ class WebFragment : BottomSheetFragment() {
 
         currentUrl = args.url
 
-        setHasOptionsMenu(true)
+
 
         val root = inflater.inflate(R.layout.fragment_web, container, false)
 
@@ -80,7 +85,7 @@ class WebFragment : BottomSheetFragment() {
             launchInCustomTabs(args.url)
         } else {
             // Only instantiate WebView if we're not using custom tabs
-            lifecycleScope.launchWhenCreated {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val container: ViewGroup = root.findViewById(R.id.container)
                 val webView = webService.getWebView(object : WebService.Interaction {
 
@@ -185,13 +190,17 @@ class WebFragment : BottomSheetFragment() {
         finishWhenCameBack()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.web_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.web_menu, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.web_openinbrowser -> {
                 launchInBrowser(currentUrl)
                 true

@@ -152,15 +152,14 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
 
 
         // Needed for dynamic translation of the bottom bar
-        val selectionListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-            val (nav, title) = when (item.itemId) {
-                R.id.navigation_activity -> R.id.navigation_activity to getString(R.string.main_tab_activity)
-                R.id.advancedFragment -> R.id.advancedFragment to getString(R.string.main_tab_advanced)
-                R.id.navigation_settings -> R.id.navigation_settings to getString(R.string.main_tab_settings)
-                else -> R.id.navigation_home to getString(R.string.main_tab_home)
+        navView.setOnItemSelectedListener { item: MenuItem ->
+            val nav = when (item.itemId) {
+                R.id.navigation_activity -> R.id.navigation_activity
+                R.id.advancedFragment -> R.id.advancedFragment
+                R.id.navigation_settings -> R.id.navigation_settings
+                else -> R.id.navigation_home
             }
             navController.navigate(nav)
-            item.title = title
 
             // Also emit tab change in NavRepo
             lifecycleScope.launch {
@@ -175,7 +174,6 @@ class MainActivity : LocalizationActivity(), PreferenceFragmentCompat.OnPreferen
 
             true
         }
-        navView.setOnNavigationItemSelectedListener(selectionListener)
 
         // Needed for dynamic translation of the top bar
         navController.addOnDestinationChangedListener { controller, destination, arguments ->

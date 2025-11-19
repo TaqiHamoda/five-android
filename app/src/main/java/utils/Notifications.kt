@@ -12,6 +12,10 @@
 
 package utils
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -40,12 +44,28 @@ enum class NotificationChannels(val title: Localised, val importance: Int) {
     BLOCKA("Blokada Plus", IMPORTANCE_HIGH);
 }
 
+
+
+
+
 sealed class NotificationPrototype(
     val id: Int,
     val channel: NotificationChannels,
     val autoCancel: Boolean = false,
     val create: (ctx: Context) -> NotificationCompat.Builder
 )
+
+private fun createNotificationChannel(context: Context, channel: NotificationChannels) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationChannel = NotificationChannel(
+            channel.name,
+            channel.title,
+            channel.importance
+        )
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+}
 
 class MonitorNotification(
     tunnelStatus: TunnelStatus,
@@ -55,7 +75,8 @@ class MonitorNotification(
     working: Boolean,
 ): NotificationPrototype(1, NotificationChannels.ACTIVITY,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.ACTIVITY)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.ACTIVITY.name)
 //        b.setContentTitle(ctx.resources.getString(R.string.notification_keepalive_title, counter))
 //        b.setContentText(ctx.getString(R.string.notification_blocked_text, reason))
         b.setSmallIcon(R.drawable.ic_stat_blokada)
@@ -146,7 +167,7 @@ class MonitorNotification(
             // TODO: paused
             else -> {
                 b.setContentTitle(
-                    ctx.getString(R.string.home_status_deactivated).lowercase(Locale.getDefault()).capitalize()
+                    ctx.getString(R.string.home_status_deactivated).lowercase(Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
                 )
 
                 b.addAction(run {
@@ -244,7 +265,8 @@ class MonitorNotification(
 
 class UpdateNotification(versionName: String): NotificationPrototype(3, NotificationChannels.UPDATE,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.UPDATE)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.UPDATE.name)
         b.setContentTitle(ctx.getString(R.string.notification_update_header))
         b.setContentText(ctx.getString(R.string.universal_action_learn_more))
         b.setSmallIcon(R.drawable.ic_stat_blokada)
@@ -260,7 +282,8 @@ class UpdateNotification(versionName: String): NotificationPrototype(3, Notifica
 
 class ExpiredNotification: NotificationPrototype(4, NotificationChannels.BLOCKA,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.BLOCKA)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.BLOCKA.name)
         b.setContentTitle(ctx.getString(R.string.notification_acc_header))
         b.setContentText(ctx.getString(R.string.notification_acc_subtitle))
         b.setStyle(NotificationCompat.BigTextStyle().bigText(ctx.getString(R.string.notification_acc_body)))
@@ -308,7 +331,8 @@ class ExpiredNotification: NotificationPrototype(4, NotificationChannels.BLOCKA,
 
 class AccountExpiredNotification: NotificationPrototype(5, NotificationChannels.BLOCKA,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.BLOCKA)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.BLOCKA.name)
         b.setContentTitle(ctx.getString(R.string.notification_acc_header))
         b.setContentText(ctx.getString(R.string.notification_acc_subtitle))
         b.setStyle(NotificationCompat.BigTextStyle().bigText(
@@ -328,7 +352,8 @@ class AccountExpiredNotification: NotificationPrototype(5, NotificationChannels.
 // automatically extended while the account is active.
 class PlusLeaseExpiredNotification: NotificationPrototype(6, NotificationChannels.BLOCKA,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.BLOCKA)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.BLOCKA.name)
         b.setContentTitle(ctx.getString(R.string.notification_lease_header))
         b.setContentText(ctx.getString(R.string.notification_vpn_expired_subtitle))
         b.setStyle(NotificationCompat.BigTextStyle().bigText(
@@ -347,7 +372,8 @@ class PlusLeaseExpiredNotification: NotificationPrototype(6, NotificationChannel
 // When timed-pause runs out.
 class PauseTimeoutNotification: NotificationPrototype(7, NotificationChannels.BLOCKA,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.BLOCKA)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.BLOCKA.name)
         b.setContentTitle(ctx.getString(R.string.notification_pause_header))
         b.setContentText(ctx.getString(R.string.notification_pause_subtitle))
         b.setStyle(NotificationCompat.BigTextStyle().bigText(
@@ -366,7 +392,8 @@ class PauseTimeoutNotification: NotificationPrototype(7, NotificationChannels.BL
 // When executing a command from the background (some silly android requirements)
 class ExecutingCommandNotification: NotificationPrototype(8, NotificationChannels.ACTIVITY,
     create = { ctx ->
-        val b = NotificationCompat.Builder(ctx)
+        createNotificationChannel(ctx, NotificationChannels.ACTIVITY)
+        val b = NotificationCompat.Builder(ctx, NotificationChannels.ACTIVITY.name)
         b.setContentTitle(ctx.getString(R.string.universal_status_processing))
         b.setSmallIcon(R.drawable.ic_stat_blokada)
         b.setPriority(NotificationCompat.PRIORITY_LOW)

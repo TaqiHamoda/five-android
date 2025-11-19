@@ -16,6 +16,7 @@ import android.content.Context
 import android.graphics.drawable.LevelListDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -145,7 +146,8 @@ class ProtectionLevelFragment : BottomSheetFragment(skipCollapsed = false) {
     }
 
     private lateinit var detailPing: TextView
-    private val pingRefresh = Handler {
+
+    private val pingRefresh = Handler(Looper.getMainLooper()) {
         detailPing.text = MetricsService.lastRtt.run { if (this == 9999L) "-" else toString() }
         reschedulePingRefresh()
         true

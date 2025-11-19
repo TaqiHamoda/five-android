@@ -16,6 +16,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.*
 import android.net.wifi.WifiManager
+import android.net.wifi.WifiInfo
 import android.os.Build
 import android.telephony.SubscriptionManager
 import kotlinx.coroutines.GlobalScope
@@ -108,7 +109,8 @@ object ConnectivityService {
             }
             cap.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
                 // This assumes there is only one active WiFi network at a time
-                var name: String? = wifiManager.connectionInfo.ssid.trim('"')
+                val wifiInfo = getCurrentWifiInfo(context.requireAppContext())
+                var name: String? = wifiInfo?.ssid?.trim('"')
                 if (name == WifiManager.UNKNOWN_SSID) {
                     name = null
                 } // No perms in bg, we'll try next time
@@ -116,7 +118,7 @@ object ConnectivityService {
                 if (name == null) {
                     // Of course, this being Android, there are some weird cases in the wild
                     // where we get null despite having the perms. Try to use a fallback.
-                    name = wifiManager.connectionInfo.bssid?.trim('"')
+                    name = wifiInfo?.bssid?.trim('"')
                     if (name == "02:00:00:00:00:00") name = null // No perms (according to docs)
                 }
 
@@ -124,6 +126,22 @@ object ConnectivityService {
             }
             else -> fallback()
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentWifiInfo(context: Context): WifiInfo? {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val network = connectivityManager.activeNetwork ?: return null
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return null
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return capabilities.transportInfo as? WifiInfo
+            }
+        } else {
+            // For older APIs, use the deprecated method with necessary permissions
+            return wifiManager.connectionInfo
+        }
+        return null
     }
 
     // Ensures we keep the best description of given network we can have.
@@ -270,15 +288,21 @@ object ConnectivityService {
     fun isDeviceInOfflineMode(): Boolean {
         return when {
             defaultRouteNetwork != null -> false
-            isConnectedOldApi() -> false
+            isConnectedModernApi() -> false
             //doze.isDoze() -> true
             else -> true
         }
     }
 
-    private fun isConnectedOldApi(): Boolean {
-        val activeInfo = manager.activeNetworkInfo ?: return false
-        return activeInfo.isConnected
+    private fun isConnectedModernApi(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = manager.activeNetwork ?: return false
+            val capabilities = manager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                   capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        }
+        // Fallback for older APIs, though this function is intended for modern APIs
+        return false
     }
 
     private fun LinkProperties.usesPrivateDns(): Boolean {

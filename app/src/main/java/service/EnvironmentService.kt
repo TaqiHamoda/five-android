@@ -16,6 +16,7 @@ import android.os.Build
 import model.DeviceId
 import org.blokada.BuildConfig
 import java.text.Normalizer
+import java.util.Locale
 
 object EnvironmentService {
 
@@ -61,7 +62,7 @@ object EnvironmentService {
     }
 
     fun getBuildName(): String {
-        return "${getFlavor()}${BuildConfig.BUILD_TYPE.capitalize()}"
+        return "${getFlavor()}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.titlecase(Locale.getDefault()) }}"
     }
 
     fun getVersionCode() = BuildConfig.VERSION_CODE

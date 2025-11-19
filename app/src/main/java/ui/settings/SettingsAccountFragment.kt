@@ -13,6 +13,7 @@
 package ui.settings
 
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -36,14 +37,12 @@ class SettingsAccountFragment : PreferenceFragmentCompat() {
     private lateinit var vm: SettingsViewModel
     private lateinit var accountVM: AccountViewModel
 
-    private val biometric by lazy { Services.biometric }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_account, rootKey)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         activity?.let {
             vm = ViewModelProvider(it.app()).get(SettingsViewModel::class.java)
@@ -81,13 +80,9 @@ class SettingsAccountFragment : PreferenceFragmentCompat() {
         }
     }
 
-    // Will use biometric auth if available or skip it otherwise and just show id
     private fun handleShowAccountId(account: Account) {
         lifecycleScope.launch {
             val fragment = this@SettingsAccountFragment
-            if (biometric.isBiometricReady(fragment.requireContext()))
-                biometric.auth(fragment) // Will throw on bad auth
-
             alert.showAlert(message = account.id,
                 title = getString(R.string.account_label_id),
                 additionalAction = getString(R.string.universal_action_copy) to {

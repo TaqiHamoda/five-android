@@ -57,8 +57,8 @@ class UserDeniedAdapter(
         }
 
         override fun onClick(v: View?) {
-            if (adapterPosition == RecyclerView.NO_POSITION) return
-            val clicked = getItem(adapterPosition)
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return
+            val clicked = getItem(bindingAdapterPosition)
             interaction?.onDelete(clicked)
         }
 

@@ -79,7 +79,7 @@ object WebService {
         cookie.setAcceptThirdPartyCookies(web, true)
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) && isDarkMode()) {
-            WebSettingsCompat.setForceDark(web.settings, WebSettingsCompat.FORCE_DARK_ON)
+            web.settings.forceDark = WebSettings.FORCE_DARK_ON
         }
 
         webView = WeakReference(web)

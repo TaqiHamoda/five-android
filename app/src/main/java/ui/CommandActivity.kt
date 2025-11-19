@@ -1,15 +1,3 @@
-/*
- * This file is part of Blokada.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright © 2021 Blocka AB. All rights reserved.
- *
- * @author Karol Gusak (karol@blocka.net)
- */
-
 package ui
 
 import android.app.IntentService
@@ -32,6 +20,12 @@ import ui.utils.cause
 import utils.ExecutingCommandNotification
 import utils.Logger
 import java.util.*
+import android.app.Service
+import android.os.IBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
 enum class Command {
     OFF, ON, DNS, LOG, ACC, ESCAPE, TOAST, DOH
@@ -88,10 +82,9 @@ class CommandActivity : AppCompatActivity() {
             Command.ACC -> {
                 if (param == ACC_MANAGE) {
                     log.v("Starting account management screen")
-                    val intent = Intent(this, MainActivity::class.java).also {
-                        it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        it.putExtra(MainActivity.ACTION, ACC_MANAGE)
-                    }
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.putExtra(MainActivity.ACTION, ACC_MANAGE)
                     startActivity(intent)
                 } else throw BlokadaException("Unknown param for command ACC: $param, ignoring")
             }
@@ -143,21 +136,36 @@ class CommandActivity : AppCompatActivity() {
 
 }
 
-class CommandService : IntentService("cmd") {
+class CommandService : Service() {
 
-    override fun onHandleIntent(intent: Intent?) {
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
-            val ctx = ContextService.requireContext()
-            val notification = NotificationService
-            val n = ExecutingCommandNotification()
-            startForeground(n.id, notification.build(n))
+            serviceScope.launch {
+                val ctx = ContextService.requireContext()
+                val notification = NotificationService
+                val n = ExecutingCommandNotification()
+                startForeground(n.id, notification.build(n))
 
-            ctx.startActivity(Intent(ACTION_VIEW, it.data).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            })
+                val activityIntent = Intent(ACTION_VIEW, it.data)
+                activityIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                ctx.startActivity(activityIntent)
+                stopSelf(startId) // Stop the service once the command is executed
+            }
         }
+        return START_NOT_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        return null // Not a bound service
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel() // Cancel all coroutines when the service is destroyed
+    }
 }
 
 fun getIntentForCommand(command: Command, param: Param? = null): Intent {

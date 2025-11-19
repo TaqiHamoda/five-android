@@ -16,6 +16,7 @@ import com.squareup.moshi.JsonClass
 import service.EnvironmentService
 import service.Localised
 import utils.Logger
+import java.util.Locale
 
 /**
  * This file is copypasted from the iOS version and adapted to Kotlin.
@@ -141,7 +142,7 @@ fun Pack.allTagsCommaSeparated(): String {
         "None"
         //return L10n.packTagsNone
     } else {
-        tags.joinToString().capitalize()
+        tags.joinToString().replaceFirstChar { it.titlecase(Locale.getDefault()) }
     }
 }
 

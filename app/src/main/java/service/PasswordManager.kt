@@ -19,6 +19,7 @@ object PasswordManager {
     private lateinit var encryptedSharedPreferences: SharedPreferences
 
     fun init(context: Context) {
+        val keyGenParameterSpec = MasterKeys.AES256_GCM_SPEC
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
         encryptedSharedPreferences = EncryptedSharedPreferences.create(
             PREFS_FILE_NAME,

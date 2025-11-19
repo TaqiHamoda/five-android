@@ -41,7 +41,7 @@ class UserDeniedFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
+
         activity?.let {
             vm = ViewModelProvider(it.app()).get(StatsViewModel::class.java)
         }

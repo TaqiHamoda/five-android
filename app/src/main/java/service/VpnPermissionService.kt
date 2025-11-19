@@ -14,38 +14,54 @@ package service
 
 import android.app.Activity
 import android.net.VpnService
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
 import utils.Logger
+import kotlin.coroutines.resume
 
 object VpnPermissionService {
 
     private val log = Logger("VpnPerm")
     private val context = ContextService
 
-    var onPermissionGranted = { granted: Boolean -> }
+    private var permissionContinuation: CancellableContinuation<Boolean>? = null
+        @Synchronized set
+        @Synchronized get
 
     fun hasPermission(): Boolean {
         return VpnService.prepare(context.requireContext()) == null
     }
 
-    fun askPermission() {
-        log.w("Asking for VPN permission")
-        val activity = context.requireContext()
-        if (activity !is Activity) {
-            log.e("No activity context available")
-            return
-        }
+    suspend fun askPermission(): Boolean {
+        return suspendCancellableCoroutine { cont ->
+            permissionContinuation = cont
+            log.w("Asking for VPN permission")
+            val activity = context.requireContext()
+            if (activity !is Activity) {
+                log.e("No activity context available")
+                cont.resume(false)
+                return@suspendCancellableCoroutine
+            }
 
-        VpnService.prepare(activity)?.let { intent ->
-            activity.startActivityForResult(intent, 0)
-        } ?: onPermissionGranted(true)
+            VpnService.prepare(activity)?.let { intent ->
+                activity.startActivityForResult(intent, 0)
+            } ?: cont.resume(true)
+
+            cont.invokeOnCancellation {
+                permissionContinuation = null
+                log.w("VPN permission request cancelled.")
+            }
+        }
     }
 
     fun resultReturned(resultCode: Int) {
-        if (resultCode == -1) onPermissionGranted(true)
-        else {
+        if (resultCode == -1) {
+            permissionContinuation?.resume(true)
+        } else {
             log.w("VPN permission not granted, returned code $resultCode")
-            onPermissionGranted(false)
+            permissionContinuation?.resume(false)
         }
+        permissionContinuation = null
     }
 
 }

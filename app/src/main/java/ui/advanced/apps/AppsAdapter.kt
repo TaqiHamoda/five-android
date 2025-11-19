@@ -13,6 +13,7 @@
 package ui.advanced.apps
 
 import android.os.Handler
+import android.os.Looper // This one should be here
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -59,8 +60,8 @@ class AppsAdapter(
         }
 
         override fun onClick(v: View?) {
-            if (adapterPosition == RecyclerView.NO_POSITION) return
-            val clicked = getItem(adapterPosition)
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return
+            val clicked = getItem(bindingAdapterPosition)
             itemView.alpha = 0.3f
             interaction?.onClick(clicked)
         }
@@ -81,7 +82,7 @@ class AppsAdapter(
 
     private val repo = AppRepository
 
-    private val loadIcon = Handler {
+    private val loadIcon = Handler(Looper.getMainLooper()) {
         val request = it.obj as Pair<ImageView, AppId>
         val view = request.first
         val currentId = view.tag as AppId

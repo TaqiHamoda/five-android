@@ -55,17 +55,17 @@ class PacksAdapter(private val interaction: Interaction? = null) :
         init {
             itemView.setOnClickListener(this)
             switch.setOnClickListener {
-                if (adapterPosition == RecyclerView.NO_POSITION) Unit
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) Unit
                 else {
-                    val clicked = getItem(adapterPosition)
+                    val clicked = getItem(bindingAdapterPosition)
                     interaction?.onSwitch(clicked, switch.isChecked)
                 }
             }
         }
 
         override fun onClick(v: View?) {
-            if (adapterPosition == RecyclerView.NO_POSITION) return
-            val clicked = getItem(adapterPosition)
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return
+            val clicked = getItem(bindingAdapterPosition)
             interaction?.onClick(clicked)
         }
 

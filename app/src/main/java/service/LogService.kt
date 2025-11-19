@@ -183,15 +183,13 @@ object LogService {
 
         val activity = ctx as? Activity
         if (activity != null) {
-            val intent = ShareCompat.IntentBuilder.from(activity)
-                .setStream(actualUri)
-                .setType("text/*")
-                .intent
-                .setAction(Intent.ACTION_SEND)
-                .setDataAndType(actualUri, "text/*")
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            ctx.startActivity(intent)
+            val shareIntent: Intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/*"
+                putExtra(Intent.EXTRA_STREAM, actualUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            ctx.startActivity(shareIntent)
         } else {
             val openFileIntent = Intent(Intent.ACTION_SEND)
             openFileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

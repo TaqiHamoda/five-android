@@ -47,16 +47,11 @@ open class PermsRepo {
 
     private var previousAccountType: AccountType? = null
 
-    private var ongoingVpnPerm: CancellableContinuation<Granted>? = null
-        @Synchronized set
-        @Synchronized get
-
     open fun start() {
         onForeground_recheckPerms()
         onDnsString_latest()
         onAccountTypeUpgraded_showActivatedSheet()
         onDnsProfileActivated_update()
-        onVpnPermsGranted_Proceed()
     }
 
     private fun onForeground_recheckPerms() {
@@ -90,18 +85,6 @@ open class PermsRepo {
         }
     }
 
-    private fun onVpnPermsGranted_Proceed() {
-        // Also used in AskVpnProfileFragment, but that fragment is
-        // not used in Cloud mode, so it won't collide
-        vpnPerms.onPermissionGranted = { granted ->
-            GlobalScope.launch { writeNotificationPerms.emit(granted) }
-            if (ongoingVpnPerm?.isCompleted == false) {
-                ongoingVpnPerm?.resume(granted, {})
-                ongoingVpnPerm = null
-            }
-        }
-    }
-
     suspend fun maybeDisplayDnsProfilePermsDialog() {
         val granted = dnsProfilePermsHot.first()
         if (!granted) {
@@ -126,10 +109,8 @@ open class PermsRepo {
         val type = accountTypeHot.first()
         val granted = vpnProfilePermsHot.first()
         if (type == AccountType.Plus && !granted) {
-            suspendCancellableCoroutine<Granted> { cont ->
-                ongoingVpnPerm = cont
-                vpnPerms.askPermission()
-            }
+            val vpnGranted = vpnPerms.askPermission()
+            writeVpnProfilePerms.value = vpnGranted
         }
     }
 

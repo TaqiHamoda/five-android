@@ -20,6 +20,9 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import model.Dns
 import model.DnsId
 import model.isDnsOverHttps
@@ -71,32 +74,37 @@ class DnsChoiceFragment : BottomSheetFragment() {
         val container3: LinearLayout = root.findViewById(R.id.dnschoice_container3)
         val container4: LinearLayout = root.findViewById(R.id.dnschoice_container4)
 
-        lifecycleScope.launchWhenCreated {
-            val spinner: View = root.findViewById(R.id.spinner)
-            spinner.visibility = View.GONE
 
-            container1.removeAllViews()
-            container2.removeAllViews()
-            container3.removeAllViews()
-            container4.removeAllViews()
+// ...
 
-            val it = DnsDataSource.getDns().sortedByDescending { it.isDnsOverHttps() }
-            val groupedLocations = it.map {
-                when {
-                    it.region.startsWith("europe") -> 2 to it
-                    it.region.startsWith("us") || it.region.startsWith("northamerica") -> 3 to it
-                    it.region.startsWith("asia") || it.region.startsWith("other") -> 4 to it
-                    else -> 1 to it
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                val spinner: View = root.findViewById(R.id.spinner)
+                spinner.visibility = View.GONE
+
+                container1.removeAllViews()
+                container2.removeAllViews()
+                container3.removeAllViews()
+                container4.removeAllViews()
+
+                val it = DnsDataSource.getDns().sortedByDescending { it.isDnsOverHttps() }
+                val groupedLocations = it.map {
+                    when {
+                        it.region.startsWith("europe") -> 2 to it
+                        it.region.startsWith("us") || it.region.startsWith("northamerica") -> 3 to it
+                        it.region.startsWith("asia") || it.region.startsWith("other") -> 4 to it
+                        else -> 1 to it
+                    }
                 }
-            }
 
-            for(pairs in groupedLocations) {
-                val (region, dns) = pairs
-                when (region) {
-                    1 -> addItemView(container1, dns)
-                    2 -> addItemView(container2, dns)
-                    3 -> addItemView(container3, dns)
-                    else -> addItemView(container4, dns)
+                for(pairs in groupedLocations) {
+                    val (region, dns) = pairs
+                    when (region) {
+                        1 -> addItemView(container1, dns)
+                        2 -> addItemView(container2, dns)
+                        3 -> addItemView(container3, dns)
+                        else -> addItemView(container4, dns)
+                    }
                 }
             }
         }

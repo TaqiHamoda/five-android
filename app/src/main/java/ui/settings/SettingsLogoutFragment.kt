@@ -13,6 +13,7 @@
 package ui.settings
 
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
@@ -31,8 +32,8 @@ class SettingsLogoutFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_logout, rootKey)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         activity?.let {
             vm = ViewModelProvider(it.app()).get(AccountViewModel::class.java)

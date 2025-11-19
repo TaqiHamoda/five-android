@@ -14,6 +14,7 @@ package utils
 
 import service.EnvironmentService
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets // This one should be here
 
 object Links {
 
@@ -40,7 +41,7 @@ object Links {
 
     fun support(accountId: String) =
         "https://app.blokada.org/support?account-id=$accountId" +
-        "&user-agent=${URLEncoder.encode(EnvironmentService.getUserAgent())}"
+        "&user-agent=${URLEncoder.encode(EnvironmentService.getUserAgent(), StandardCharsets.UTF_8.name())}"
 
     fun isSubscriptionLink(link: String) = link.startsWith("https://app.blokada.org/activate")
 

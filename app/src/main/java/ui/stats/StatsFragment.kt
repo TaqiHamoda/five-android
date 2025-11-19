@@ -37,7 +37,12 @@ import ui.app
 import ui.utils.getColorFromAttr
 import utils.Links
 
-class StatsFragment : Fragment() {
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+
+// ...
+
+class StatsFragment : Fragment(), MenuProvider {
 
     private lateinit var vm: StatsViewModel
 
@@ -52,7 +57,6 @@ class StatsFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
         activity?.let {
             vm = ViewModelProvider(it.app()).get(StatsViewModel::class.java)
         }
@@ -92,7 +96,7 @@ class StatsFragment : Fragment() {
                 recycler.scrollToTop()
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {})
 
             override fun onTabSelected(tab: TabLayout.Tab) {
                 val sorting = when(tab.position) {
@@ -182,6 +186,71 @@ class StatsFragment : Fragment() {
                 cloudRepo.activityRetentionHot
                     .collect {
                         retention.visibility = if (it == "24h") View.GONE else View.VISIBLE
+                    }
+            }
+        }
+
+        return root
+    }
+
+    private fun getDeviceList(): List<String> {
+        return (
+            listOf(EnvironmentService.getDeviceAlias())
+            + (vm.stats.value?.entries?.map { it.device } ?: emptyList())
+        ).distinct()
+    }
+
+    private fun RecyclerView.scrollToTop() {
+        lifecycleScope.launch {
+            delay(1000) // Just Android things
+            smoothScrollToPosition(0)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        this.menu = menu
+        syncMenuIcons()
+        inflater.inflate(R.menu.stats_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.stats_search -> {
+                if (vm.stats.value?.entries?.isEmpty() == true) {
+                    // Ignore action when empty
+                } else if (searchGroup.visibility == View.GONE) {
+                    searchGroup.visibility = View.VISIBLE
+                    search.isIconified = false
+                    search.requestFocus()
+                } else {
+                    searchGroup.visibility = View.GONE
+                }
+                true
+            }
+            R.id.stats_filter -> {
+                val fragment = StatsFilterFragment.newInstance()
+                fragment.show(parentFragmentManager, null)
+                true
+            }
+            R.id.stats_device -> {
+                val fragment = StatsDeviceFragment.newInstance()
+                fragment.deviceList = getDeviceList()
+                fragment.show(parentFragmentManager, null)
+                true
+            }
+            R.id.stats_clear -> {
+                AlertDialogService.showAlert(getString(R.string.universal_status_confirm),
+                    title = getString(R.string.universal_action_clear),
+                    positiveAction = getString(R.string.universal_action_yes) to {
+                        vm.clear()
+                    })
+                true
+            }
+            else -> false
+        }
+    }
+"24h") View.GONE else View.VISIBLE
                     }
             }
         }

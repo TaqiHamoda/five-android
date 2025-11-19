@@ -18,6 +18,6 @@ object Services {
     val apiForCurrentUser by lazy { BlockaApiForCurrentUserService }
     val sheet by lazy { SheetService() }
     val payment: IPaymentService by lazy { BillingService() }
-    val biometric by lazy { BiometricService() }
+
 
 }

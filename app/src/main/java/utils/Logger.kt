@@ -52,6 +52,6 @@ class LoggerWithThread(val component: String) : Logger(component) {
     override fun w(message: String) = super.w(thread() + message)
     override fun v(message: String) = super.v(thread() + message)
 
-    private fun thread() = "{${Thread.currentThread().id}} "
+    private fun thread() = "{${Thread.currentThread().threadId}} "
 
 }
